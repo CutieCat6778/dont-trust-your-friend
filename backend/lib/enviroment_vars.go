@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	JWT_SECRET string
+	JWT_SECRET  string
+	POSTGES_URI string
 )
 
 func init() {
@@ -17,12 +18,13 @@ func init() {
 	}
 
 	JWT_SECRET = GetEnv("JWT_SECRET")
+	POSTGES_URI = GetEnv("POSTGES_URI")
 }
 
 func GetEnv(name string) string {
 	data := os.Getenv(name)
 	if data == "" {
-		panic("Environment variable not found")
+		panic("Environment variable not found: " + name)
 	}
 	return data
 }

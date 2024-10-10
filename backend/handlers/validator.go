@@ -1,10 +1,14 @@
 package handlers
 
-import "github.com/go-playground/validator/v10"
+import (
+	"fmt"
+
+	"github.com/go-playground/validator/v10"
+)
 
 type (
 	ValidatorHandler struct {
-		*validator.Validate
+		validator *validator.Validate
 	}
 
 	ErrorResponse struct {
@@ -16,11 +20,35 @@ type (
 )
 
 var (
-	Validator *ValidatorHandler
+	VHandler ValidatorHandler
 )
 
-func NewValidator() *ValidatorHandler {
+func NewValidator() ValidatorHandler {
 	v := validator.New()
-	Validator = &ValidatorHandler{v}
-	return Validator
+	VHandler = ValidatorHandler{validator: v}
+	fmt.Println("[HANDLER] Validator Handler Initialized")
+	return VHandler
 }
+
+func (h ValidatorHandler) Validate(data interface{}) []ErrorResponse {
+	validationsError := []ErrorResponse{}
+
+	if h.validator == nil {
+		panic("[ERROR] Validator is not initialized")
+	}
+
+	err := h.validator.Struct(data)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			var elem ErrorResponse
+			elem.Error = true
+			elem.FailedField = err.Field()
+			elem.Tag = err.Tag()
+			elem.Value = err.Value()
+			validationsError = append(validationsError, elem)
+		}
+	}
+
+	return validationsError
+}
+

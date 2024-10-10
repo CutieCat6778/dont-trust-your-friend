@@ -13,7 +13,7 @@ type Jwt struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-func SignJWT(userId uint) (*Jwt, CustomError) {
+func SignJWT(userId uint) (*Jwt, *CustomError) {
 	accessTokenExp := time.Minute * 15
 	refreshTokenExp := time.Hour * 24 * 7
 
@@ -32,43 +32,43 @@ func SignJWT(userId uint) (*Jwt, CustomError) {
 
 	AccessToken, err := accessToken.SignedString([]byte(JWT_SECRET))
 	if err != nil {
-		return nil, *NewError("Failed to sign access token", 500, JwtService)
+		return nil, NewError("Failed to sign access token", 500, JwtService)
 	}
 
 	RefreshToken, err := refreshToken.SignedString([]byte(JWT_SECRET))
 	if err != nil {
-		return nil, *NewError("Failed to sign refresh token", 500, JwtService)
+		return nil, NewError("Failed to sign refresh token", 500, JwtService)
 	}
 
 	return &Jwt{
 		AccessToken:  AccessToken,
 		RefreshToken: RefreshToken,
 		CreatedAt:    time.Now(),
-	}, CustomError{}
+	}, &CustomError{}
 }
 
-func DecodeJWT(token string) (jwt.MapClaims, CustomError) {
+func DecodeJWT(token string) (jwt.MapClaims, *CustomError) {
 	claims := jwt.MapClaims{}
 
 	t, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(JWT_SECRET), nil
 	})
 	if err != nil {
-		return nil, *NewError("Failed to decode token", 401, JwtService)
+		return nil, NewError("Failed to decode token", 401, JwtService)
 	}
 
 	if !t.Valid {
 		exp, err := claims.GetExpirationTime()
 		if err != nil {
-			return nil, *NewError("Token is not valid", 401, JwtService)
+			return nil, NewError("Token is not valid", 401, JwtService)
 		}
 		expireIn := time.Now().Unix() - exp.Unix()
 		if expireIn > 0 {
-			return nil, *NewError("Token has expired", 401, JwtService)
+			return nil, NewError("Token has expired", 401, JwtService)
 		} else {
-			return nil, *NewError("Token is not valid", 401, JwtService)
+			return nil, NewError("Token is not valid", 401, JwtService)
 		}
 	}
 
-	return claims, CustomError{}
+	return claims, &CustomError{}
 }
