@@ -48,11 +48,8 @@ func login(c *gin.Context) {
 
 	var err *lib.CustomError
 
-	db := <-handlers.DB
-	defer func() {
-		fmt.Println("DB returned")
-		handlers.DB <- db
-	}()
+	db := handlers.InitDB()
+	defer db.CloseDB()
 
 	user, err := db.GetUserByUsername(req.Username)
 	if err != nil {
@@ -72,17 +69,19 @@ func login(c *gin.Context) {
 		return
 	}
 
-	jwt, err := lib.SignJWT(user.ID)
+	jwt, err := lib.SignJWT(user.ID, user.Version)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(err.Code, gin.H{
 			"error": err.Message,
 		})
 		return
 	}
 
+	lib.CreateCookie(c, jwt)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login success",
-		"tokens":  jwt,
 		"user":    user,
 	})
 }
@@ -96,25 +95,26 @@ func register(c *gin.Context) {
 		return
 	}
 
-	if errs := handlers.VHandler.Validate(req); errs != nil {
+	if errs := handlers.VHandler.Validate(req); len(errs) > 0 && errs[0].Error {
+		fmt.Println(errs)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": errs,
+			"by":    "validator",
 		})
 		return
 	}
 
-	db := <-handlers.DB
-	defer func() {
-		handlers.DB <- db
-	}()
+	db := handlers.InitDB()
+	defer db.CloseDB()
 
 	hashedPassword := lib.HashString(req.Password)
 
-	newUser := &models.User{
+	newUser := models.User{
 		Username: req.Username,
 		Password: hashedPassword,
 		Name:     req.Name,
 		Balance:  100,
+		Version:  0,
 	}
 
 	if err := db.CreateUser(newUser); err != nil {

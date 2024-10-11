@@ -13,7 +13,7 @@ type Jwt struct {
 	CreatedAt    time.Time `json:"created_at"`
 }
 
-func SignJWT(userId uint) (*Jwt, *CustomError) {
+func SignJWT(userId uint, version int) (*Jwt, *CustomError) {
 	accessTokenExp := time.Minute * 15
 	refreshTokenExp := time.Hour * 24 * 7
 
@@ -26,6 +26,7 @@ func SignJWT(userId uint) (*Jwt, *CustomError) {
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(refreshTokenExp)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		Issuer:    fmt.Sprintf("Version %d", version),
 		Subject:   "refresh_token",
 		ID:        fmt.Sprintf("%d", userId),
 	})
@@ -44,7 +45,7 @@ func SignJWT(userId uint) (*Jwt, *CustomError) {
 		AccessToken:  AccessToken,
 		RefreshToken: RefreshToken,
 		CreatedAt:    time.Now(),
-	}, &CustomError{}
+	}, nil
 }
 
 func DecodeJWT(token string) (jwt.MapClaims, *CustomError) {
