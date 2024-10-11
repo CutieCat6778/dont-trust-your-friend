@@ -46,18 +46,24 @@ func login(c *gin.Context) {
 		return
 	}
 
+	var err *lib.CustomError
+
 	db := <-handlers.DB
 	defer func() {
+		fmt.Println("DB returned")
 		handlers.DB <- db
 	}()
 
 	user, err := db.GetUserByUsername(req.Username)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(err.Code, gin.H{
 			"error": err.Message,
 		})
 		return
 	}
+
+	fmt.Println("User found")
 
 	if !lib.CompareHashAndString(user.Password, req.Password) {
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -71,6 +77,7 @@ func login(c *gin.Context) {
 		c.JSON(err.Code, gin.H{
 			"error": err.Message,
 		})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
