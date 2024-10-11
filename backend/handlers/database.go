@@ -14,9 +14,12 @@ type DBHandler struct {
 	*gorm.DB
 }
 
-func InitDB() *DBHandler {
-	db := database.ConnectToDB()
-	return &DBHandler{db}
+func InitDB() (*DBHandler, *lib.CustomError) {
+	db, err := database.ConnectToDB()
+	if err != nil {
+		return nil, err
+	}
+	return &DBHandler{db}, nil
 }
 
 func handleDBError(err error) *lib.CustomError {

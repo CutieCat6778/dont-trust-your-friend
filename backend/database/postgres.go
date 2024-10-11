@@ -7,15 +7,19 @@ import (
 	"gorm.io/gorm"
 )
 
-func ConnectToDB() *gorm.DB {
+func ConnectToDB() (*gorm.DB, *lib.CustomError) {
 	db, err := gorm.Open(postgres.Open(lib.POSTGES_URI), &gorm.Config{
 		TranslateError: true,
 	})
 	if err != nil {
-		panic(err)
+		return nil, &lib.CustomError{
+			Code:    500,
+			Message: "Failed to connect to database",
+			By:      lib.DatabaseService,
+		}
 	}
 
 	// db.AutoMigrate(&models.User{})
 
-	return db
+	return db, nil
 }
