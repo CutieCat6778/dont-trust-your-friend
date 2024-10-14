@@ -11,7 +11,6 @@ import (
 )
 
 func InitSocketIo(e *gin.Engine) {
-
 	c := socket.DefaultServerOptions()
 	c.SetServeClient(true)
 	c.SetPingInterval(1000)

@@ -14,7 +14,7 @@ func ConnectToDB() (*gorm.DB, *lib.CustomError) {
 	if err != nil {
 		return nil, &lib.CustomError{
 			Code:    500,
-			Message: "Failed to connect to database",
+			Message: "Faile to connect to database",
 			By:      lib.DatabaseService,
 		}
 	}
