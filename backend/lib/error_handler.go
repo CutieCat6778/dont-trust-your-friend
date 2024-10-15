@@ -6,7 +6,9 @@ const (
 	AuthService = iota
 	UsersService
 	JwtService
+	RedisService
 	DatabaseService
+	SnowflakeService
 )
 
 type CustomError struct {
