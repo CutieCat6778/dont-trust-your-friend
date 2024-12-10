@@ -1,0 +1,15 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+	body {
+		@apply dark:bg-black dark:text-white
+	}
+	h1 {
+		@apply text-2xl font-bold
+	}
+	input {
+		@apply dark:bg-neutral-800 dark:text-white
+	}
+}
