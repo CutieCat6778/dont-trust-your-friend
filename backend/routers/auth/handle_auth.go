@@ -48,16 +48,7 @@ func login(c *gin.Context) {
 
 	var err *lib.CustomError
 
-	db, err := handlers.InitDB()
-	defer db.CloseDB()
-
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(err.Code, gin.H{
-			"error": err.Message,
-		})
-		return
-	}
+	db := handlers.DB
 
 	user, err := db.GetUserByUsername(req.Username)
 	if err != nil {
@@ -112,16 +103,7 @@ func register(c *gin.Context) {
 		return
 	}
 
-	db, err := handlers.InitDB()
-	defer db.CloseDB()
-
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(err.Code, gin.H{
-			"error": err.Message,
-		})
-		return
-	}
+	db := handlers.DB
 
 	hashedPassword := lib.HashString(req.Password)
 
@@ -133,7 +115,7 @@ func register(c *gin.Context) {
 		Version:  0,
 	}
 
-	if err = db.CreateUser(newUser); err != nil {
+	if err := db.CreateUser(newUser); err != nil {
 		c.JSON(err.Code, gin.H{
 			"error": err.Message,
 		})

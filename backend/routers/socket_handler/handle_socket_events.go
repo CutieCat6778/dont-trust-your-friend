@@ -11,7 +11,7 @@ func HandleSocketEvents(s socket.Server) {
 	s.On("connection", OnConnection)
 }
 
-func OnConnection(clients ...any) {
+func OnConnection(clients ...interface{}) {
 	client := clients[0].(*socket.Socket)
 
 	claims := _authSocketRequest(client)
@@ -19,15 +19,15 @@ func OnConnection(clients ...any) {
 		return
 	}
 
-	client.On("disconnect", func(clients ...any) {
+	client.On("disconnect", func(clients ...interface{}) {
 		client.Disconnect(true)
 	})
 
-	client.On("error", func(clients ...any) {
+	client.On("error", func(clients ...interface{}) {
 		client.Disconnect(true)
 	})
 
-	client.On("message", func(clients ...any) {
+	client.On("message", func(clients ...interface{}) {
 		client.Send("message", "Hello, World!")
 	})
 }

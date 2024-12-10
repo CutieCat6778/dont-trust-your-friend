@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"cutiecat6778/dont-trust-your-friend/routers/socket_handler"
+
 	"github.com/gin-gonic/gin"
 	adapter "github.com/gwatts/gin-adapter"
 	"github.com/zishang520/engine.io/v2/types"
@@ -31,4 +33,6 @@ func InitSocketIo(e *gin.Engine) {
 	e.POST("/socket", adapter.Wrap(func(h http.Handler) http.Handler {
 		return socketio.ServeHandler(c)
 	}))
+
+	socketio.On("connection", socket_handler.OnConnection)
 }

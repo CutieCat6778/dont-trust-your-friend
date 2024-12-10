@@ -17,5 +17,3 @@ func NewRedis() (*Redis, *lib.CustomError) {
 
 	return &Redis{*redisHandler}, nil
 }
-
-func (r *Redis) CreateGame()
